@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PFE Documentation - Workspace ROS 2 Nav2 & Human Tracking</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        ros: {
+                            orange: '#ff7b00',
+                            dark: '#0d1117',
+                            panel: '#161b22',
+                            card: 'rgba(22, 27, 34, 0.75)',
+                            border: 'rgba(255, 255, 255, 0.1)',
+                            cyan: '#00f2fe',
+                            accent: '#38bdf8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --ros-orange: #ff7b00;
+            --ros-cyan: #00f2fe;
+            --glow-orange: rgba(255, 123, 0, 0.25);
+            --glow-cyan: rgba(0, 242, 254, 0.25);
+        }
+
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Panels */
+        .glass-panel {
+            background: rgba(22, 27, 34, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card {
+            background: rgba(30, 38, 48, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: var(--ros-cyan);
+            box-shadow: 0 0 25px -5px var(--glow-cyan);
+            transform: translateY(-2px);
+        }
+
+        .glass-card-orange:hover {
+            border-color: var(--ros-orange);
+            box-shadow: 0 0 25px -5px var(--glow-orange);
+        }
+
+        /* Glowing pulses and accents */
+        .glow-pulse-orange {
+            box-shadow: 0 0 12px var(--ros-orange);
+            animation: pulse-orange 2s infinite;
+        }
+
+        .glow-pulse-cyan {
+            box-shadow: 0 0 12px var(--ros-cyan);
+            animation: pulse-cyan 2s infinite;
+        }
+
+        @keyframes pulse-orange {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.95); }
+        }
+
+        @keyframes pulse-cyan {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.95); }
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(13, 17, 23, 0.9);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--ros-orange);
+        }
+
+        /* Node Graph SVG Connection Line Pulse */
+        .animated-flow {
+            stroke-dasharray: 8, 8;
+            animation: dash 1.5s linear infinite;
+        }
+
+        @keyframes dash {
+            to { stroke-dashoffset: -16; }
+        }
+     /* Autoriser la sélection de texte sur tout le site */
+        * {
+        user-select: text !important;
+        -webkit-user-select: text !important;
+        -moz-user-select: text !important;}
+
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans select-none antialiased bg-[#0d1117] text-slate-200">
+
+    <!-- Top Header -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800 px-4 lg:px-8 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <button id="sidebar-toggle" class="lg:hidden text-slate-400 hover:text-white p-1">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 to-orange-500 flex items-center justify-center text-white font-mono font-bold text-lg shadow-lg shadow-orange-500/20">
+                    ROS
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <h1 class="font-bold text-white text-base tracking-wide font-mono">nav2_real_ws</h1>
+                        <span class="bg-orange-500/20 text-orange-400 border border-orange-500/30 px-2 py-0.5 rounded text-[10px] font-mono font-semibold">ROS 2 HUMBLE</span>
+                    </div>
+                    <p class="text-xs text-slate-400 hidden sm:block">Projet de Fin d'Études — Suivi d'Humain & Navigation Nav2</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Quick Actions -->
+        <div class="flex items-center space-x-3">
+            <div class="relative hidden md:block w-64">
+                <input type="text" id="global-search" placeholder="Rechercher paquet, fichier, nœud..." class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl pl-9 pr-4 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition">
+                <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+            
+            <button onclick="scrollToSection('sec-terminal')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-cyan-400 font-mono flex items-center space-x-2 transition">
+                <span class="w-2 h-2 rounded-full bg-cyan-400 glow-pulse-cyan"></span>
+                <span>Terminal CLI</span>
+            </button>
+
+            <button onclick="showToast('Rapport PFE imprimable généré !')" class="px-3 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-slate-950 font-bold text-xs flex items-center space-x-1.5 shadow-lg shadow-orange-500/20 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                <span class="hidden sm:inline">Guide Professeur</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <div class="flex flex-1 overflow-hidden relative">
+
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="w-64 glass-panel border-r border-slate-800 flex flex-col justify-between transition-transform duration-300 z-30 fixed inset-y-0 left-0 lg:relative -translate-x-full lg:translate-x-0 pt-16 lg:pt-0">
+            <div class="p-4 space-y-6 overflow-y-auto">
+                <!-- System Env Status Card -->
+                <div class="bg-slate-900/80 rounded-xl p-3 border border-slate-800 space-y-2">
+                    <div class="text-[11px] text-slate-400 font-mono font-semibold uppercase tracking-wider flex items-center justify-between">
+                        <span>Environnement</span>
+                        <span class="text-emerald-400">● Actif</span>
+                    </div>
+                    <div class="text-xs space-y-1 font-mono text-slate-300">
+                        <div class="flex justify-between"><span class="text-slate-500">OS:</span> <span>Ubuntu 22.04 LTS</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">ROS:</span> <span class="text-orange-400">Humble</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Dossier:</span> <span>nav2_real_ws/src</span></div>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="space-y-1">
+                    <div class="text-[10px] font-mono uppercase text-slate-500 font-bold px-3 mb-2">Sections Principales</div>
+                    
+                    <button data-target="sec-hero" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium bg-slate-800 text-white border border-slate-700">
+                        <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                        <span>Vue d'Ensemble</span>
+                    </button>
+
+                    <button data-target="sec-packages" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/60">
+                        <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+                        <span>Paquets ROS 2 (src)</span>
+                        <span class="ml-auto bg-slate-800 text-cyan-400 px-1.5 py-0.5 rounded text-[10px] font-mono">5</span>
+                    </button>
+
+                    <button data-target="sec-architecture" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/60">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 01-2 2m0 10V7m6 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 01-2 2"/></svg>
+                        <span>Graphe des Nœuds</span>
+                    </button>
+
+                    <button data-target="sec-guide" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/60">
+                        <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>Guide de Lancement</span>
+                    </button>
+
+                    <button data-target="sec-terminal" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/60">
+                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <span>Terminal Simulé</span>
+                    </button>
+
+                    <button data-target="sec-code" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/60">
+                        <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                        <span>Inspecteur Code</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Workspace Path Footer -->
+            <div class="p-4 border-t border-slate-800 bg-slate-950/60">
+                <div class="text-[10px] font-mono text-slate-500">WORKSPACE PATH</div>
+                <div class="text-xs font-mono text-slate-300 truncate">~/nav2_real_ws/src</div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto p-4 lg:p-8 space-y-12">
+
+            <!-- SECTION 1: HERO OVERVIEW -->
+            <section id="sec-hero" class="space-y-6">
+                <!-- Hero Banner -->
+                <div class="glass-card glass-card-orange rounded-3xl p-6 lg:p-10 relative overflow-hidden">
+                    <div class="absolute -right-12 -top-12 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute right-1/3 -bottom-10 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <div class="relative z-10 space-y-4 max-w-3xl">
+                        <div class="inline-flex items-center space-x-2 bg-orange-500/10 border border-orange-500/30 px-3 py-1 rounded-full text-xs font-mono text-orange-400">
+                            <span class="w-2 h-2 rounded-full bg-orange-400 glow-pulse-orange"></span>
+                            <span>Projet de Fin d'Études (PFE) — Robotics & Autonomy</span>
+                        </div>
+
+                        <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                            Plateforme Autonome de Navigation ROS 2 & Suivi d'Humain
+                        </h2>
+
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            Bienvenue sur le portail d'évaluation du workspace <code class="bg-slate-900 text-orange-400 px-2 py-0.5 rounded font-mono text-xs">nav2_real_ws/src</code>. Ce site documente l'architecture logicielle, les paquets sur-mesure, les plugins Nav2 ainsi que les procédures d'exécution de la simulation à la navigation réelle.
+                        </p>
+
+                        <div class="flex flex-wrap items-center gap-3 pt-2">
+                            <button onclick="scrollToSection('sec-guide')" class="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-slate-950 font-bold text-xs flex items-center space-x-2 shadow-lg shadow-orange-500/25 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <span>Lancer la Démo Pas-à-Pas</span>
+                            </button>
+
+                            <button onclick="scrollToSection('sec-packages')" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-700 flex items-center space-x-2 transition">
+                                <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                                <span>Explorer les 5 Paquets</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fast Key Metrics Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+                        <div class="text-xs font-mono text-slate-400">Paquets ROS 2</div>
+                        <div class="text-2xl font-bold font-mono text-white mt-1">5 <span class="text-xs text-orange-400 font-normal">dans /src</span></div>
+                        <div class="text-[11px] text-slate-500 mt-1">Architecture Modulaire</div>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+                        <div class="text-xs font-mono text-slate-400">Plugins Nav2</div>
+                        <div class="text-2xl font-bold font-mono text-cyan-400 mt-1">Custom</div>
+                        <div class="text-[11px] text-slate-500 mt-1">Planificateur & Contrôleur</div>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+                        <div class="text-xs font-mono text-slate-400">Capteurs Intégrés</div>
+                        <div class="text-2xl font-bold font-mono text-emerald-400 mt-1">LiDAR + RGB-D</div>
+                        <div class="text-[11px] text-slate-500 mt-1">Fusion de Données 3D</div>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+                        <div class="text-xs font-mono text-slate-400">Simulation</div>
+                        <div class="text-2xl font-bold font-mono text-purple-400 mt-1">Gazebo + RViz2</div>
+                        <div class="text-[11px] text-slate-500 mt-1">Environnement Virtuel</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: PACKAGE EXPLORER (The 5 Packages from nav2_real_ws/src) -->
+            <section id="sec-packages" class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-white flex items-center space-x-2">
+                            <span class="text-cyan-400 font-mono">01.</span>
+                            <span>Explorateur des Paquets ROS 2 (`nav2_real_ws/src`)</span>
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-1">Cliquez sur un paquet pour inspecter son contenu, ses fichiers clés et ses instructions d'utilisation.</p>
+                    </div>
+                    <div class="flex space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-mono">
+                        <button class="pkg-filter px-3 py-1 rounded-lg bg-orange-500 text-slate-950 font-bold" data-filter="all">Tous (5)</button>
+                        <button class="pkg-filter px-3 py-1 rounded-lg text-slate-400 hover:text-white" data-filter="navigation">Navigation</button>
+                        <button class="pkg-filter px-3 py-1 rounded-lg text-slate-400 hover:text-white" data-filter="tracking">Tracking</button>
+                    </div>
+                </div>
+
+                <!-- Package Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="packages-grid">
+                    
+                    <!-- Package 1: human_tracking_msgs -->
+                    <div class="glass-card p-6 rounded-2xl cursor-pointer flex flex-col justify-between space-y-4 group" onclick="openPackageModal('human_tracking_msgs')">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">MSG & INTERFACES</span>
+                                <svg class="w-5 h-5 text-slate-500 group-hover:text-cyan-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </div>
+                            <h4 class="text-lg font-bold text-white font-mono group-hover:text-cyan-400 transition">human_tracking_msgs</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Définitions personnalisées de messages ROS 2 (<code class="text-slate-300 font-mono">.msg</code>) pour la mesure, l'état et le suivi d'humains dans la simulation.
+                            </p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-500">
+                            <span>Fichiers: HumanState.msg, HumanTrack.msg...</span>
+                            <span class="text-cyan-400">Inspecter →</span>
+                        </div>
+                    </div>
+
+                    <!-- Package 2: my_nav2_plugins -->
+                    <div class="glass-card p-6 rounded-2xl cursor-pointer flex flex-col justify-between space-y-4 group" onclick="openPackageModal('my_nav2_plugins')">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">NAV2 PLUGINS</span>
+                                <svg class="w-5 h-5 text-slate-500 group-hover:text-cyan-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </div>
+                            <h4 class="text-lg font-bold text-white font-mono group-hover:text-cyan-400 transition">my_nav2_plugins</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Plugins C++ sur-mesure intégrés à la pile Nav2 : planificateur de trajectoire conscient des humains (Human-Aware Planner) et contrôleur de vitesse adaptatif.
+                            </p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-500">
+                            <span>C++ / Nav2 Core Plugins</span>
+                            <span class="text-cyan-400">Inspecter →</span>
+                        </div>
+                    </div>
+
+                    <!-- Package 3: my_robot -->
+                    <div class="glass-card p-6 rounded-2xl cursor-pointer flex flex-col justify-between space-y-4 group" onclick="openPackageModal('my_robot')">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">ROBOT DESCRIPTION</span>
+                                <svg class="w-5 h-5 text-slate-500 group-hover:text-cyan-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </div>
+                            <h4 class="text-lg font-bold text-white font-mono group-hover:text-cyan-400 transition">my_robot</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Modèle 3D URDF/Xacro du robot mobile, inerties, roues motrices et intégration des capteurs (LiDAR 2D 360° + Caméra RGB-D Intel RealSense).
+                            </p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-500">
+                            <span>Xacro, Meshes 3D, Gazebo Plugins</span>
+                            <span class="text-cyan-400">Inspecter →</span>
+                        </div>
+                    </div>
+
+                    <!-- Package 4: my_robot_bringup -->
+                    <div class="glass-card p-6 rounded-2xl cursor-pointer flex flex-col justify-between space-y-4 group" onclick="openPackageModal('my_robot_bringup')">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-semibold bg-orange-500/10 text-orange-400 border border-orange-500/20">LAUNCH & SIMULATION</span>
+                                <svg class="w-5 h-5 text-slate-500 group-hover:text-cyan-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </div>
+                            <h4 class="text-lg font-bold text-white font-mono group-hover:text-cyan-400 transition">my_robot_bringup</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Scripts de lancement centralisés (<code class="text-slate-300 font-mono">.launch.py</code>) pour démarrer la simulation Gazebo, l'environnement RViz2 et le démarrage des drivers réels.
+                            </p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-500">
+                            <span>bringup_sim.launch.py</span>
+                            <span class="text-cyan-400">Inspecter →</span>
+                        </div>
+                    </div>
+
+                    <!-- Package 5: my_robot_navigation -->
+                    <div class="glass-card p-6 rounded-2xl cursor-pointer flex flex-col justify-between space-y-4 group" onclick="openPackageModal('my_robot_navigation')">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20">NAV2 CONFIG & MAPS</span>
+                                <svg class="w-5 h-5 text-slate-500 group-hover:text-cyan-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </div>
+                            <h4 class="text-lg font-bold text-white font-mono group-hover:text-cyan-400 transition">my_robot_navigation</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Configurations de navigation incluant la localisation EKF (<code class="text-slate-300 font-mono">ekf.yaml</code>), SLAM Toolbox et les paramètres généraux Nav2.
+                            </p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-500">
+                            <span>nav2_params.yaml, Maps 2D</span>
+                            <span class="text-cyan-400">Inspecter →</span>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- SECTION 3: INTERACTIVE NODE GRAPH VISUALIZER -->
+            <section id="sec-architecture" class="space-y-6">
+                <div class="border-b border-slate-800 pb-4">
+                    <h3 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <span class="text-emerald-400 font-mono">02.</span>
+                        <span>Graphe Interactif de l'Architecture ROS 2</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Passez votre curseur sur un nœud pour voir les Topics, Actions et flux de données associés.</p>
+                </div>
+
+                <!-- Interactive SVG Canvas Diagram -->
+                <div class="glass-panel rounded-2xl p-6 border border-slate-800 relative overflow-hidden">
+                    <div class="w-full overflow-x-auto">
+                        <svg class="w-full min-w-[700px] h-80" viewBox="0 0 900 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Background Grid -->
+                            <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+                                <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                            </pattern>
+                            <rect width="100%" height="100%" fill="url(#grid)" />
+
+                            <!-- Connecting Flow Lines -->
+                            <path d="M 180 150 L 270 150" stroke="#ff7b00" stroke-width="2" class="animated-flow"/>
+                            <path d="M 430 150 L 520 150" stroke="#00f2fe" stroke-width="2" class="animated-flow"/>
+                            <path d="M 680 150 L 770 150" stroke="#10b981" stroke-width="2" class="animated-flow"/>
+
+                            <!-- Node 1: Camera / LiDAR Sensor Node -->
+                            <g class="node-element cursor-pointer" onclick="inspectNode('human_detector_node')">
+                                <rect x="30" y="100" width="150" height="100" rx="16" fill="#1e293b" stroke="#ff7b00" stroke-width="2"/>
+                                <text x="105" y="135" fill="#ffffff" font-size="12" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">human_detector</text>
+                                <text x="105" y="155" fill="#94a3b8" font-size="10" text-anchor="middle">YOLOv8 + RGBD</text>
+                                <rect x="45" y="170" width="120" height="18" rx="4" fill="rgba(255,123,0,0.15)"/>
+                                <text x="105" y="183" fill="#ff7b00" font-size="9" font-family="JetBrains Mono" text-anchor="middle">Pub: /human_pose</text>
+                            </g>
+
+                            <!-- Node 2: Human Tracker Node -->
+                            <g class="node-element cursor-pointer" onclick="inspectNode('human_tracking_node')">
+                                <rect x="270" y="100" width="160" height="100" rx="16" fill="#1e293b" stroke="#00f2fe" stroke-width="2"/>
+                                <text x="350" y="135" fill="#ffffff" font-size="12" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">human_tracker</text>
+                                <text x="350" y="155" fill="#94a3b8" font-size="10" text-anchor="middle">Filter Kalman / Pose</text>
+                                <rect x="285" y="170" width="130" height="18" rx="4" fill="rgba(0,242,254,0.15)"/>
+                                <text x="350" y="183" fill="#00f2fe" font-size="9" font-family="JetBrains Mono" text-anchor="middle">Pub: /target_goal</text>
+                            </g>
+
+                            <!-- Node 3: Nav2 Planner & Controller -->
+                            <g class="node-element cursor-pointer" onclick="inspectNode('nav2_controller_node')">
+                                <rect x="520" y="100" width="160" height="100" rx="16" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+                                <text x="600" y="135" fill="#ffffff" font-size="12" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">nav2_planner</text>
+                                <text x="600" y="155" fill="#94a3b8" font-size="10" text-anchor="middle">my_nav2_plugins</text>
+                                <rect x="535" y="170" width="130" height="18" rx="4" fill="rgba(56,189,248,0.15)"/>
+                                <text x="600" y="183" fill="#38bdf8" font-size="9" font-family="JetBrains Mono" text-anchor="middle">Pub: /cmd_vel</text>
+                            </g>
+
+                            <!-- Node 4: Robot Driver / Gazebo Sim -->
+                            <g class="node-element cursor-pointer" onclick="inspectNode('gazebo_robot_node')">
+                                <rect x="770" y="100" width="110" height="100" rx="16" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+                                <text x="825" y="140" fill="#ffffff" font-size="12" font-family="JetBrains Mono" font-weight="bold" text-anchor="middle">gazebo_sim</text>
+                                <text x="825" y="160" fill="#94a3b8" font-size="10" text-anchor="middle">Diff-Drive</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- Inspector Modal Displayed on Node Click -->
+                    <div id="node-inspector" class="bg-slate-900/95 border border-slate-700 p-4 rounded-xl text-xs space-y-2 mt-4 hidden">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <span id="node-title" class="font-bold text-white font-mono text-sm">Nom du Nœud</span>
+                            <span id="node-pkg" class="px-2 py-0.5 rounded font-mono bg-slate-800 text-cyan-400">paquet</span>
+                        </div>
+                        <p id="node-desc" class="text-slate-300">Description du rôle dans le PFE.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 font-mono">
+                            <div class="bg-slate-950 p-2 rounded border border-slate-800">
+                                <span class="text-slate-500 block text-[10px]">SUBSCRIBES (IN)</span>
+                                <span id="node-subs" class="text-orange-400">/topic_in</span>
+                            </div>
+                            <div class="bg-slate-950 p-2 rounded border border-slate-800">
+                                <span class="text-slate-500 block text-[10px]">PUBLISHES (OUT)</span>
+                                <span id="node-pubs" class="text-cyan-400">/topic_out</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: STEP BY STEP LAUNCH GUIDE -->
+            <section id="sec-guide" class="space-y-6">
+                <div class="border-b border-slate-800 pb-4">
+                    <h3 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <span class="text-purple-400 font-mono">03.</span>
+                        <span>Guide de Lancement Pas-à-Pas (Pour Évaluateurs)</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Exécutez ces commandes dans votre terminal Ubuntu pour démarrer le workspace.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Step 1 -->
+                    <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs font-bold text-purple-400">ÉTAPE 01</span>
+                            <span class="text-xs text-slate-500">Installation des dépendances ROS 2</span>
+                        </div>
+                        <h4 class="text-white font-semibold text-sm">Cloner et résoudre les dépendances manquantes</h4>
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between font-mono text-xs text-slate-200">
+                            <code>cd ~/nav2_real_ws && rosdep install --from-paths src --ignore-src -r -y</code>
+                            <button onclick="copyCommand('cd ~/nav2_real_ws && rosdep install --from-paths src --ignore-src -r -y')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition">Copier</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs font-bold text-purple-400">ÉTAPE 02</span>
+                            <span class="text-xs text-slate-500">Compilation Colcon</span>
+                        </div>
+                        <h4 class="text-white font-semibold text-sm">Compiler l'ensemble des 5 paquets</h4>
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between font-mono text-xs text-slate-200">
+                            <code>colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release</code>
+                            <button onclick="copyCommand('colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition">Copier</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs font-bold text-purple-400">ÉTAPE 03</span>
+                            <span class="text-xs text-slate-500">Sourcing de l'environnement</span>
+                        </div>
+                        <h4 class="text-white font-semibold text-sm">Charger l'overlay dans votre session Bash</h4>
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between font-mono text-xs text-slate-200">
+                            <code>source install/setup.bash</code>
+                            <button onclick="copyCommand('source install/setup.bash')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition">Copier</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Execution Scenarios -->
+                    <div class="glass-panel p-5 rounded-2xl border border-orange-500/30 bg-orange-500/5 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs font-bold text-orange-400">ÉTAPE 04 — SCÉNARIOS DE DÉMO</span>
+                            <span class="text-xs text-orange-400 font-mono">Démarrage complet</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                                <div class="text-xs font-bold text-white">1. Simulation Gazebo + Robot Bringup</div>
+                                <code class="block text-[11px] font-mono text-cyan-400">ros2 launch my_robot_bringup bringup_sim.launch.py</code>
+                                <button onclick="copyCommand('ros2 launch my_robot_bringup bringup_sim.launch.py')" class="w-full mt-2 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs text-white transition">Copier la commande launch</button>
+                            </div>
+
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                                <div class="text-xs font-bold text-white">2. Nav2 & Suivi d'Humain Autonome</div>
+                                <code class="block text-[11px] font-mono text-cyan-400">ros2 launch my_robot_navigation navigation.launch.py</code>
+                                <button onclick="copyCommand('ros2 launch my_robot_navigation navigation.launch.py')" class="w-full mt-2 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs text-white transition">Copier la commande launch</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Step 5 -->
+                    <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs font-bold text-purple-400">ÉTAPE 03</span>
+                            <span class="text-xs text-slate-500">Sourcing de l'environnement</span>
+                        </div>
+                        <h4 class="text-white font-semibold text-sm">Charger l'overlay dans votre session Bash</h4>
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between font-mono text-xs text-slate-200">
+                            <code>source install/setup.bash</code>
+                            <button onclick="copyCommand('source install/setup.bash')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition">Copier</button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- SECTION 5: SIMULATED ROS 2 CLI TERMINAL -->
+            <section id="sec-terminal" class="space-y-6">
+                <div class="border-b border-slate-800 pb-4">
+                    <h3 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <span class="text-amber-400 font-mono">04.</span>
+                        <span>Terminal ROS 2 Simulé</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Testez les commandes ROS 2 directement dans ce terminal interactif.</p>
+                </div>
+
+                <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden shadow-2xl font-mono text-xs">
+                    <!-- Console Top Toolbar -->
+                    <div class="bg-slate-900 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                            <span class="text-slate-400 pl-2">user@ros2-humble:~/nav2_real_ws</span>
+                        </div>
+                        <span class="text-slate-500 text-[10px]">Tapez 'help' pour la liste des commandes</span>
+                    </div>
+
+                    <!-- Console Body -->
+                    <div id="terminal-output" class="p-4 h-64 overflow-y-auto space-y-2 bg-slate-950/90 text-slate-300">
+                        <div class="text-orange-400">ROS 2 Humble Workspace Shell loaded.</div>
+                        <div class="text-slate-400">Workspace active: <span class="text-cyan-400">/home/user/nav2_real_ws</span></div>
+                        <div class="text-slate-500">Exemples de commandes : <span class="text-white">colcon build</span>, <span class="text-white">ros2 topic list</span>, <span class="text-white">ros2 node list</span>, <span class="text-white">launch</span></div>
+                    </div>
+
+                    <!-- Console Quick Preset Buttons -->
+                    <div class="px-4 py-2 bg-slate-900/50 border-t border-slate-800/80 flex flex-wrap gap-2">
+                        <button onclick="runTermCommand('colcon build')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px]">colcon build</button>
+                        <button onclick="runTermCommand('ros2 topic list')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px]">ros2 topic list</button>
+                        <button onclick="runTermCommand('ros2 node list')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px]">ros2 node list</button>
+                        <button onclick="runTermCommand('ros2 launch my_robot_bringup bringup_sim.launch.py')" class="px-2.5 py-1 rounded bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 text-[11px]">lancer simulation</button>
+                    </div>
+
+                    <!-- Console Command Input -->
+                    <div class="px-4 py-3 bg-slate-900 border-t border-slate-800 flex items-center space-x-2">
+                        <span class="text-orange-400 font-bold">❯</span>
+                        <input type="text" id="term-input" placeholder="Entrez une commande ROS 2..." class="flex-1 bg-transparent border-none text-white focus:outline-none font-mono text-xs">
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 6: SOURCE CODE INSPECTOR -->
+            <section id="sec-code" class="space-y-6">
+                <div class="border-b border-slate-800 pb-4">
+                    <h3 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <span class="text-sky-400 font-mono">05.</span>
+                        <span>Inspecteur du Code Source</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Consultez les fichiers principaux créés pour ce projet de fin d'études.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- File Selector List -->
+                    <div class="glass-panel p-4 rounded-2xl border border-slate-800 space-y-2">
+                        <div class="text-xs font-mono text-slate-400 uppercase font-bold mb-3">Fichiers Clés du Workspace</div>
+                        
+                        <button onclick="loadCodeSnippet('action')" class="code-file-btn w-full text-left p-2.5 rounded-xl text-xs font-mono bg-slate-800 text-cyan-400 border border-slate-700 flex items-center justify-between">
+                            <span>TrackHuman.action</span>
+                            <span class="text-[10px] text-slate-500">msg</span>
+                        </button>
+
+                        <button onclick="loadCodeSnippet('plugin')" class="code-file-btn w-full text-left p-2.5 rounded-xl text-xs font-mono text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center justify-between">
+                            <span>human_aware_planner.cpp</span>
+                            <span class="text-[10px] text-slate-500">C++</span>
+                        </button>
+
+                        <button onclick="loadCodeSnippet('urdf')" class="code-file-btn w-full text-left p-2.5 rounded-xl text-xs font-mono text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center justify-between">
+                            <span>mobile_robot.urdf.xacro</span>
+                            <span class="text-[10px] text-slate-500">XML</span>
+                        </button>
+
+                        <button onclick="loadCodeSnippet('launch')" class="code-file-btn w-full text-left p-2.5 rounded-xl text-xs font-mono text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center justify-between">
+                            <span>bringup_sim.launch.py</span>
+                            <span class="text-[10px] text-slate-500">Python</span>
+                        </button>
+
+                        <button onclick="loadCodeSnippet('yaml')" class="code-file-btn w-full text-left p-2.5 rounded-xl text-xs font-mono text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center justify-between">
+                            <span>nav2_params.yaml</span>
+                            <span class="text-[10px] text-slate-500">YAML</span>
+                        </button>
+                    </div>
+
+                    <!-- Code Viewer Panel -->
+                    <div class="lg:col-span-2 glass-panel p-5 rounded-2xl border border-slate-800 font-mono text-xs space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <span id="code-filename" class="text-orange-400 font-bold">human_tracking_msgs/action/TrackHuman.action</span>
+                            <span class="text-[10px] text-slate-500">ROS 2 Action Interface</span>
+                        </div>
+                        <pre id="code-content" class="text-slate-300 overflow-x-auto p-3 bg-slate-950 rounded-xl leading-relaxed">
+# Request Goal Definition
+int32 target_human_id
+geometry_msgs/PoseStamped target_pose
+float32 tracking_distance_margin
+---
+# Result Definition
+bool success
+float32 total_tracking_time
+string tracking_status
+---
+# Feedback Definition
+geometry_msgs/PoseStamped current_human_pose
+float32 distance_to_human
+float32 current_robot_speed
+                        </pre>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- PACKAGE DETAIL MODAL -->
+    <div id="pkg-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-2xl rounded-2xl border border-slate-700 p-6 space-y-4 shadow-2xl relative">
+            <button onclick="closePackageModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+
+            <div id="modal-pkg-header">
+                <!-- Injected via JS -->
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div class="font-mono text-slate-400 uppercase font-bold">Structure des Fichiers dans src/</div>
+                <div id="modal-pkg-tree" class="bg-slate-950 p-4 rounded-xl font-mono text-slate-300 space-y-1">
+                    <!-- Tree -->
+                </div>
+            </div>
+
+            <div class="pt-2 flex justify-end">
+                <button onclick="closePackageModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-white hover:bg-slate-700 text-xs font-semibold">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+    <script>
+            const packagesData = {
+            'human_tracking_msgs': {
+                title: 'human_tracking_msgs',
+                cat: 'Messages ROS 2 & Interfaces Custom',
+                desc: 'Ce package définit formellement les interfaces de communication personnalisées (fichiers .msg) partagées entre le nœud d\'inférence (Jetson) et le nœud de décision (PC).',
+                tree: [
+                    'human_tracking_msgs/',
+                    '├── msg/',
+                    '│   ├── HumanMeasurement.msg',
+                    '│   ├── HumanMeasurementArray.msg',
+                    '│   ├── HumanState.msg',
+                    '│   ├── HumanStateArray.msg',
+                    '│   ├── HumanTrack.msg',
+                    '│   └── HumanTrackArray.msg',
+                    '├── CMakeLists.txt',
+                    '└── package.xml'
+                ]
+            },
+
+
+           'my_nav2_plugins': {
+                title: 'my_nav2_plugins',
+                cat: 'Plugins C++ Nav2',
+                desc:'Plugin C++ pour Nav2 qui récupère le suivi des personnes, convertit leurs coordonnées avec TF2 et applique une marge de coût (inflation) sur la costmap locale autour de leurs positions actuelles et prédites, permettant au robot d\'éviter dynamiquement les humains.',
+                tree: [
+                    'my_nav2_plugins/',
+                    '├── include/my_nav2_plugins/',
+                    '│   └── human_layer.hpp',
+                    '├── src/',
+                    '│   └── human_layer.cpp',
+                    '├── CMakeLists.txt',
+                    '├── package.xml',
+                    '└── plugins.xml'
+                ]
+            },
+           'my_robot': {
+                title: 'my_robot',
+                cat: 'Description Robot & URDF',
+                desc: 'Paquet contenant le modèle 3D du robot (URDF/Xacro), les configurations RViz et les ressources associées.',
+                tree: [
+                    'my_robot/',
+                    '├── include/',
+                    '├── resource/',
+                    '├── rviz/',
+                    '├── src/',
+                    '├── urdf/',
+                    '├── package.xml',
+                    '├── setup.cfg',
+                    '└── setup.py'
+                ]
+            },
+           'my_robot_bringup': {
+                title: 'my_robot_bringup',
+                cat: 'Démarrage & Launchers',
+                desc: 'Centralisation des scripts de lancement (.launch.py) et des nœuds d\'initialisation pour le SLAM, la navigation et le suivi d\'humains.',
+                tree: [
+                    'my_robot_bringup/',
+                    '├── launch/',
+                    '│   ├── bringup.real.launch.py',
+                    '│   ├── navigation_launch.py',
+                    '│   └── slam_launch.py',
+                    '├── my_robot_bringup/',
+                    '│   ├── __init__.py',
+                    '│   └── human_marker_node.py',
+                    '├── resource/',
+                    '├── test/',
+                    '├── package.xml',
+                    '├── setup.cfg',
+                    '└── setup.py'
+                ]
+            },
+          'my_robot_navigation': {
+                title: 'my_robot_navigation',
+                cat: 'Navigation & Configuration Nav2',
+                desc: 'Fichiers de configuration YAML pour la localisation EKF, les paramètres Nav2, SLAM Toolbox et arbres de comportement.',
+                tree: [
+                    'my_robot_navigation/',
+                    '├── behavior_trees/',
+                    '├── config/',
+                    '│   ├── ekf.yaml',
+                    '│   ├── nav2_params.yaml',
+                    '│   └── slam_toolbox.yaml',
+                    '├── my_robot_navigation/',
+                    '├── resource/',
+                    '├── test/',
+                    '├── package.xml',
+                    '├── setup.cfg',
+                    '└── setup.py'
+                ]
+            },
+        };
+
+        const codeSnippets = {
+            'action': {
+                name: 'human_tracking_msgs/action/TrackHuman.action',
+                code: `# Request Goal Definition\nint32 target_human_id\ngeometry_msgs/PoseStamped target_pose\nfloat32 tracking_distance_margin\n---\n# Result Definition\nbool success\nfloat32 total_tracking_time\nstring tracking_status\n---\n# Feedback Definition\ngeometry_msgs/PoseStamped current_human_pose\nfloat32 distance_to_human\nfloat32 current_robot_speed`
+            },
+            'plugin': {
+                name: 'my_nav2_plugins/src/human_aware_planner.cpp',
+                code: `#include "my_nav2_plugins/human_aware_planner.hpp"\n#include "nav2_util/node_utils.hpp"\n\nnamespace my_nav2_plugins {\n  void HumanAwarePlanner::configure(...) {\n    // Dynamic social costmap layer initialization\n    RCLCPP_INFO(logger_, "HumanAwarePlanner configured successfully.");\n  }\n}`
+            },
+            'urdf': {
+                name: 'my_robot/urdf/mobile_robot.urdf.xacro',
+                code: `<?xml version="1.0"?>\n<robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">\n  <xacro:include filename="gazebo_control.xacro" />\n  <link name="base_link">\n    <!-- Visual and Collision geometry -->\n  </link>\n</robot>`
+            },
+            'launch': {
+                name: 'my_robot_bringup/launch/bringup_sim.launch.py',
+                code: `from launch import LaunchDescription\nfrom launch_ros.actions import Node\n\ndef generate_launch_description():\n    return LaunchDescription([\n        Node(package='gazebo_ros', executable='spawn_entity.py'),\n        Node(package='robot_state_publisher', executable='robot_state_publisher')\n    ])`
+            },
+            'yaml': {
+                name: 'my_robot_navigation/config/nav2_params.yaml',
+                code: `amcl:\n  ros__parameters:\n    alpha1: 0.2\n    max_particles: 2000\ncontroller_server:\n  ros__parameters:\n    controller_plugins: ["FollowPath"]`
+            }
+        };
+
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Sidebar Navigation Buttons Highlight
+        document.querySelectorAll('.nav-item').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(b => {
+                    b.className = 'nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/60';
+                });
+                btn.className = 'nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium bg-slate-800 text-white border border-slate-700';
+                scrollToSection(btn.dataset.target);
+            });
+        });
+
+        // Package Inspector Modal Logic
+        function openPackageModal(pkgKey) {
+            const data = packagesData[pkgKey];
+            if (!data) return;
+
+            const header = document.getElementById('modal-pkg-header');
+            header.innerHTML = `
+                <div class="text-xs font-mono text-cyan-400 font-semibold">${data.cat}</div>
+                <h3 class="text-xl font-bold text-white font-mono mt-1">${data.title}</h3>
+                <p class="text-slate-300 text-xs mt-1">${data.desc}</p>
+            `;
+
+            const treeContainer = document.getElementById('modal-pkg-tree');
+            treeContainer.innerHTML = data.tree.map(line => `<div>${line}</div>`).join('');
+
+            const modal = document.getElementById('pkg-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closePackageModal() {
+            const modal = document.getElementById('pkg-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Node Inspector Logic
+        const nodeInfo = {
+            'human_detector_node': {
+                name: 'human_detector_node',
+                pkg: 'my_robot_bringup',
+                desc: 'Traite les flux vidéo de la caméra RGB-D et les nuages de points LiDAR pour repérer les coordonnées 3D des personnes.',
+                subs: '/camera/rgb/image_raw, /scan',
+                pubs: '/human_pose'
+            },
+            'human_tracking_node': {
+                name: 'human_tracking_node',
+                pkg: 'human_tracking_msgs',
+                desc: 'Applique un filtre de Kalman pour suivre la trajectoire de l\'humain sélectionné et publier la cible d\'intérêt.',
+                subs: '/human_pose',
+                pubs: '/target_goal, /tracking_status'
+            },
+            'nav2_controller_node': {
+                name: 'nav2_planner',
+                pkg: 'my_nav2_plugins',
+                desc: 'Calcule la vitesse linéaire et angulaire optimale en évitant les obstacles tout en maintenant la distance de suivi.',
+                subs: '/target_goal, /map, /costmap',
+                pubs: '/cmd_vel'
+            },
+            'gazebo_robot_node': {
+                name: 'gazebo_sim',
+                pkg: 'my_robot',
+                desc: 'Moteur de physique Gazebo simulant la réponse dynamique du robot mobile aux commandes de vitesse /cmd_vel.',
+                subs: '/cmd_vel',
+                pubs: '/odom, /tf'
+            }
+        };
+
+        function inspectNode(nodeKey) {
+            const data = nodeInfo[nodeKey];
+            if (!data) return;
+
+            const insp = document.getElementById('node-inspector');
+            document.getElementById('node-title').textContent = data.name;
+            document.getElementById('node-pkg').textContent = data.pkg;
+            document.getElementById('node-desc').textContent = data.desc;
+            document.getElementById('node-subs').textContent = data.subs;
+            document.getElementById('node-pubs').textContent = data.pubs;
+
+            insp.classList.remove('hidden');
+        }
+
+        // Code Inspector Switcher
+        function loadCodeSnippet(key) {
+            const data = codeSnippets[key];
+            if (!data) return;
+
+            document.getElementById('code-filename').textContent = data.name;
+            document.getElementById('code-content').textContent = data.code;
+        }
+
+        // Copy to clipboard with toast
+        function copyCommand(text) {
+            const dummy = document.createElement('textarea');
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+
+            showToast('Commande copiée dans le presse-papier !');
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'glass-panel border border-orange-500/50 bg-slate-900 px-4 py-2.5 rounded-xl text-xs text-white shadow-xl flex items-center space-x-2 animate-bounce';
+            toast.innerHTML = `<span class="w-2 h-2 rounded-full bg-orange-400"></span><span>${message}</span>`;
+            document.getElementById('toast-container').appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        // Terminal Simulation Logic
+        const termInput = document.getElementById('term-input');
+        const termOutput = document.getElementById('terminal-output');
+
+        function runTermCommand(cmdText) {
+            termInput.value = cmdText;
+            executeCommand(cmdText);
+        }
+
+        termInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const cmd = termInput.value.trim();
+                executeCommand(cmd);
+            }
+        });
+
+        function executeCommand(cmd) {
+            if (!cmd) return;
+            termInput.value = '';
+
+            const promptLine = document.createElement('div');
+            promptLine.className = 'text-slate-400';
+            promptLine.innerHTML = `<span class="text-orange-400">❯</span> ${cmd}`;
+            termOutput.appendChild(promptLine);
+
+            const resLine = document.createElement('div');
+            resLine.className = 'pl-3 border-l border-slate-800 text-slate-300 my-1';
+
+            const lower = cmd.toLowerCase();
+            if (lower.includes('colcon build')) {
+                resLine.innerHTML = `<span class="text-emerald-400">[1/5] Starting ===> human_tracking_msgs</span><br><span class="text-emerald-400">[2/5] Starting ===> my_nav2_plugins</span><br><span class="text-emerald-400">[3/5] Starting ===> my_robot</span><br><span class="text-emerald-400">[4/5] Starting ===> my_robot_bringup</span><br><span class="text-emerald-400">[5/5] Starting ===> my_robot_navigation</span><br><span class="text-cyan-400 font-bold">Summary: 5 packages finished [3.2s]</span>`;
+            } else if (lower.includes('topic list')) {
+                resLine.innerHTML = `/cmd_vel<br>/human_pose<br>/target_goal<br>/tf<br>/odom<br>/scan`;
+            } else if (lower.includes('node list')) {
+                resLine.innerHTML = `/human_detector_node<br>/human_tracking_node<br>/nav2_planner<br>/robot_state_publisher`;
+            } else if (lower.includes('launch')) {
+                resLine.innerHTML = `<span class="text-amber-400">[INFO] [launch]: Launching Gazebo world & RViz2...</span><br><span class="text-emerald-400">[INFO] [robot_state_publisher]: Robot URDF loaded successfully.</span>`;
+            } else if (lower === 'help') {
+                resLine.innerHTML = `Commandes disponibles : colcon build, ros2 topic list, ros2 node list, launch`;
+            } else {
+                resLine.innerHTML = `<span class="text-rose-400">Commande exécutée.</span>`;
+            }
+
+            termOutput.appendChild(resLine);
+            termOutput.scrollTop = termOutput.scrollHeight;
+        }
+
+        // Mobile Sidebar Toggle
+        document.getElementById('sidebar-toggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+        });
+    </script>
+</body>
+</html>
